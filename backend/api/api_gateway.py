@@ -22,6 +22,7 @@ def handle_device_public_request(path):
     return identity_service.execute().json()
 
 @getway_bp.route(f'{Config.API_PREFIX}/identity/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE'])
+@authenticate()
 def handle_identity_request(path):
     data = request.get_json() if request.is_json else None
     params = request.args.to_dict()
