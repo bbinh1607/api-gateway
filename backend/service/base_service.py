@@ -5,8 +5,9 @@ import requests
 from flask import g
 
 class BaseService:
-    def __init__(self, base_url, path, method, data=None, params=None):
+    def __init__(self, base_url, path, method, data=None, params=None, is_public=False):
         self.method = method.upper()
+        self.is_public = is_public
         self.url = urljoin(base_url, f"/{path}")
         self.data = data or {}
         self.params = params or {}
@@ -15,7 +16,7 @@ class BaseService:
             "Content-Type": "application/json"
         }
 
-        if hasattr(g, 'token') and g.token:
+        if not self.is_public and hasattr(g, 'token') and g.token:
             self.headers["Authorization"] = f"Bearer {g.token}"
 
         # Retry logic
