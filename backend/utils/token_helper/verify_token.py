@@ -9,11 +9,10 @@ def verify_token(token):
     }
     try:
         response = requests.post(url, headers=headers)
-        print(response)
         if response.status_code == 200:
-            return response.json().get('data')
+            return True, response.json().get('data')
         else:
-            return False
+            return False, response.json()
     except requests.exceptions.RequestException as e:
         return {"error": str(e)}
 

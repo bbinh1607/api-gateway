@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from backend.service.file_serice import FileService
 from backend.service.device_service import DeviceService
 from backend.service.identity_service import IdentityService
 from backend.config import Config
@@ -31,3 +32,16 @@ def handle_identity_request(path):
     identity_service = IdentityService(f"{path}", request.method, data, params, is_pubic=False)
     response = identity_service.execute()
     return jsonify(response.json()), response.status_code
+
+@getway_bp.route(f'{Config.API_PREFIX}/file/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE'])
+def handle_file_request(path):
+    if request.files:
+        identity_service = FileService(f"{path}", request.method, files=request.files, params=request.args.to_dict(), is_public=False)
+    elif request.is_json:
+        identity_service = FileService(f"{path}", request.method, data=request.get_json(), params=request.args.to_dict(), is_public=False)
+    else:
+        identity_service = FileService(f"{path}", request.method, data=request.form.to_dict(), params=request.args.to_dict(), is_public=False)
+    response = identity_service.execute()
+    return jsonify(response.json()), response.status_code
+
+

@@ -14,9 +14,9 @@ def authenticate(role=None):
             try:
                 token = token.replace("Bearer ", "")
                 
-                decoded_token = verify_token(token)
-                if decoded_token is False:
-                    return jsonify({"error": "Invalid token"}), 401
+                isTrue, decoded_token = verify_token(token)
+                if isTrue is False:
+                    return jsonify(decoded_token), decoded_token['status_code']
                 if role and role != decoded_token.get('role'):
                     return jsonify({"error": "Unauthorized, insufficient role"}), 403
                 g.user = decoded_token
