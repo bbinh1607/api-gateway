@@ -11,7 +11,7 @@ getway_bp = Blueprint("getway", __name__)
 @authenticate()
 def handle_device_request(path):
     params = request.args.to_dict()
-    if request.method == "GET":
+    if request.method in ("GET", "DELETE"):
         data = None
     else:
         data = request.get_json() if request.is_json else None
@@ -21,7 +21,7 @@ def handle_device_request(path):
 
 @getway_bp.route(f'{Config.API_PREFIX}/identity/public/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def handle_device_public_request(path):
-    if request.method == "GET":
+    if request.method in ("GET", "DELETE"):
         data = None
     else:
         data = request.get_json() if request.is_json else None
@@ -33,7 +33,7 @@ def handle_device_public_request(path):
 @getway_bp.route(f'{Config.API_PREFIX}/identity/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE'])
 @authenticate()
 def handle_identity_request(path):
-    if request.method == "GET":
+    if request.method in ("GET", "DELETE"):
         data = None
     else:
         data = request.get_json() if request.is_json else None
@@ -46,7 +46,7 @@ def handle_identity_request(path):
 def handle_file_request(path):
     params = get_params()
     
-    if request.method == "GET":
+    if request.method in ("GET", "DELETE"):
         file_service = FileService(path, request.method, params=params, is_public=False)
 
     elif request.files:
