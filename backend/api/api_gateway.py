@@ -10,15 +10,21 @@ getway_bp = Blueprint("getway", __name__)
 @getway_bp.route(f'{Config.API_PREFIX}/device/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE'])
 @authenticate()
 def handle_device_request(path):
-    data = request.get_json() if request.is_json else None
     params = request.args.to_dict()
+    if request.method == "GET":
+        data = None
+    else:
+        data = request.get_json() if request.is_json else None
     device_service = DeviceService(path, request.method, data, params)
     response = device_service.execute()
     return jsonify(response.json()), response.status_code
 
 @getway_bp.route(f'{Config.API_PREFIX}/identity/public/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def handle_device_public_request(path):
-    data = request.get_json() if request.is_json else None
+    if request.method == "GET":
+        data = None
+    else:
+        data = request.get_json() if request.is_json else None
     params = request.args.to_dict()
     identity_service = IdentityService(f"{path}", request.method, data, params, is_pubic=True)
     response = identity_service.execute()
@@ -27,7 +33,10 @@ def handle_device_public_request(path):
 @getway_bp.route(f'{Config.API_PREFIX}/identity/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE'])
 @authenticate()
 def handle_identity_request(path):
-    data = request.get_json() if request.is_json else None
+    if request.method == "GET":
+        data = None
+    else:
+        data = request.get_json() if request.is_json else None
     params = request.args.to_dict()
     identity_service = IdentityService(f"{path}", request.method, data, params, is_pubic=False)
     response = identity_service.execute()
@@ -35,13 +44,21 @@ def handle_identity_request(path):
 
 @getway_bp.route(f'{Config.API_PREFIX}/file/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def handle_file_request(path):
-    if request.files:
-        identity_service = FileService(f"{path}", request.method, files=request.files, params=request.args.to_dict(), is_public=False)
-    elif request.is_json:
-        identity_service = FileService(f"{path}", request.method, data=request.get_json(), params=request.args.to_dict(), is_public=False)
-    else:
-        identity_service = FileService(f"{path}", request.method, data=request.form.to_dict(), params=request.args.to_dict(), is_public=False)
-    response = identity_service.execute()
-    return jsonify(response.json()), response.status_code
+    params = get_params()
+    
+    if request.method == "GET":
+        file_service = FileService(path, request.method, params=params, is_public=False)
 
+    elif request.files:
+        file_service = FileService(path, request.method, files=request.files, params=params, is_public=False)
+
+    elif request.is_json:
+        file_service = FileService(path, request.method, data=request.get_json(), params=params, is_public=False)
+
+    else:
+        file_service = FileService(path, request.method, data=request.form.to_dict(), params=params, is_public=False)
+
+    response = file_service.execute()
+
+    return jsonify(response.json()), response.status_code
 
